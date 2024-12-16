@@ -79,6 +79,19 @@ export async function fetchCardData() {
     // You can probably combine these into a single SQL query
     // However, we are intentionally splitting them to demonstrate
     // how to initialize multiple queries in parallel with JS.
+
+    //     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
+    //     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
+    //     const invoiceStatusPromise = sql`SELECT
+    //          SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
+    //          SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
+    //          FROM invoices`;
+
+    //     const data = await Promise.all([
+    //       invoiceCountPromise,
+    //       customerCountPromise,
+    //       invoiceStatusPromise,
+    //     ]);
     const invoiceCountPromise = db.select({ count: count() }).from(invoices);
     const customerCountPromise = db.select({ count: count() }).from(customers);
     const invoiceStatusPromise = db
@@ -119,6 +132,26 @@ export async function fetchFilteredInvoices(
   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
   try {
+    //     const invoices = await sql<InvoicesTable>`
+    //       SELECT
+    //         invoices.id,
+    //         invoices.amount,
+    //         invoices.date,
+    //         invoices.status,
+    //         customers.name,
+    //         customers.email,
+    //         customers.image_url
+    //       FROM invoices
+    //       JOIN customers ON invoices.customer_id = customers.id
+    //       WHERE
+    //         customers.name ILIKE ${`%${query}%`} OR
+    //         customers.email ILIKE ${`%${query}%`} OR
+    //         invoices.amount::text ILIKE ${`%${query}%`} OR
+    //         invoices.date::text ILIKE ${`%${query}%`} OR
+    //         invoices.status ILIKE ${`%${query}%`}
+    //       ORDER BY invoices.date DESC
+    //       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+    //     `;
     const invoicesData = await db
       .select({
         id: invoices.id,
