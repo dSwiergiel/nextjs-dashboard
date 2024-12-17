@@ -67,6 +67,7 @@ export async function fetchLatestInvoices() {
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }));
+
     return latestInvoices;
   } catch (error) {
     console.error("Database Error:", error);
@@ -76,10 +77,6 @@ export async function fetchLatestInvoices() {
 
 export async function fetchCardData() {
   try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-
     //     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
     //     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
     //     const invoiceStatusPromise = sql`SELECT
@@ -92,6 +89,11 @@ export async function fetchCardData() {
     //       customerCountPromise,
     //       invoiceStatusPromise,
     //     ]);
+
+    // You can probably combine these into a single SQL query
+    // However, we are intentionally splitting them to demonstrate
+    // how to initialize multiple queries in parallel with JS.
+    // by not calling await on the db.select(), we have not executed the query yet
     const invoiceCountPromise = db.select({ count: count() }).from(invoices);
     const customerCountPromise = db.select({ count: count() }).from(customers);
     const invoiceStatusPromise = db
@@ -101,6 +103,7 @@ export async function fetchCardData() {
       })
       .from(invoices);
 
+    // now we are calling await on the Promise.all() thus we are executing the queries
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
